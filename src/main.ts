@@ -9,6 +9,7 @@ async function bootstrap() {
     .setTitle('Nest Api')
     .setDescription('Nest api with signup, signin, CRUD ')
     .setVersion('1.0.0')
+    .addTag('Nest Api')
     .addBearerAuth(
       { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },
       'access-token',

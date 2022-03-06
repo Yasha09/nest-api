@@ -1,7 +1,7 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
 import * as argon from 'argon2';
 import { ConfigService } from '@nestjs/config';
-import { UserCreateDto } from './dto/user-create.dto';
+import { UserCreateDto, ResponseDto } from './dto/user-create.dto';
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from '../user/user.service';
 
@@ -13,14 +13,14 @@ export class AuthService {
     private jwt: JwtService,
   ) {}
 
-  async signup(dto: UserCreateDto) {
+  async signup(dto: UserCreateDto): Promise<ResponseDto> {
     const hash = await argon.hash(dto.password);
     dto.password = hash;
     const user = await this.userService.create(dto);
     return this.signToken(user.id, user.email);
   }
 
-  async signin(dto: UserCreateDto) {
+  async signin(dto: UserCreateDto): Promise<ResponseDto> {
     const user = await this.userService.findByEmail(dto.email);
     if (!user) throw new ForbiddenException('Credentials incorrect');
     const pwMatches = await argon.verify(user.password, dto.password);
@@ -31,10 +31,7 @@ export class AuthService {
     return this.signToken(user.id, user.email);
   }
 
-  async signToken(
-    userId: number,
-    email: string,
-  ): Promise<{ access_token: string }> {
+  async signToken(userId: number, email: string): Promise<ResponseDto> {
     const payload = {
       sub: userId,
       email,
@@ -47,6 +44,7 @@ export class AuthService {
     });
     return {
       access_token: token,
+      id: userId,
     };
   }
 }

@@ -10,31 +10,60 @@ import {
 import { UserService } from './user.service';
 import { UserEditDto } from './dto/user-edit.dto';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiBody, ApiCreatedResponse } from '@nestjs/swagger';
+import {
+  ApiBody,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+  ApiUnauthorizedResponse,
+} from '@nestjs/swagger';
 import { ApiBearerAuth } from '@nestjs/swagger';
+import { ApiImplicitParam } from '@nestjs/swagger/dist/decorators/api-implicit-param.decorator';
+import { UserCreateDto } from '../auth/dto/user-create.dto';
 
+@ApiTags('users')
 @UseGuards(AuthGuard('jwt'))
-@Controller('user')
+@Controller('users')
 export class UserController {
   constructor(private userService: UserService) {}
 
-  @Get('/users')
+  @Get('/')
+  @ApiOperation({ summary: 'Get all users' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @ApiResponse({
+    status: 200,
+    description: 'The record has been successfully updated.',
+    isArray: true,
+    type: UserCreateDto,
+  })
   @ApiBearerAuth()
   getAllUsers() {
     return this.userService.getAllUsers();
   }
 
-  @Put(':id')
-  @ApiCreatedResponse({ description: 'User Update' })
+  @Put(':userId')
   @ApiBody({ type: UserEditDto })
+  @ApiImplicitParam({ name: 'userId', description: 'User Id', required: true })
   @ApiBearerAuth()
-  updateUser(@Param('id') id: number, @Body() dto: UserEditDto) {
+  @ApiResponse({
+    status: 201,
+    description: 'The record has been successfully updated.',
+    type: UserCreateDto,
+  })
+  @ApiResponse({ status: 403, description: 'Forbidden.' })
+  updateUser(@Param('userId') id: number, @Body() dto: UserEditDto) {
     return this.userService.updateUser(id, dto);
   }
 
-  @Delete(':id')
+  @Delete(':userId')
   @ApiBearerAuth()
-  deleteUser(@Param('id') id: number) {
+  @ApiImplicitParam({ name: 'userId', description: 'User Id', required: true })
+  @ApiResponse({
+    status: 200,
+    description: 'The record has been successfully deleted.',
+  })
+  @ApiResponse({ status: 403, description: 'Forbidden.' })
+  deleteUser(@Param('userId') id: number) {
     return this.userService.deleteUser(id);
   }
 }

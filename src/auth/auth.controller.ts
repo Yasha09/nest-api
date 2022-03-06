@@ -1,28 +1,42 @@
 import { Body, Controller, Post } from '@nestjs/common';
 import {
-  ApiBody,
-  ApiCreatedResponse,
-  ApiUnauthorizedResponse,
+  ApiNotFoundResponse,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
 } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
-import { UserCreateDto } from './dto/user-create.dto';
+import { UserCreateDto, ResponseDto } from './dto/user-create.dto';
 
+@ApiTags('auth')
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
 
   @Post('signup')
-  @ApiCreatedResponse({ description: 'User Registration' })
-  @ApiBody({ type: UserCreateDto })
-  signup(@Body() dto: UserCreateDto) {
+  @ApiResponse({
+    status: 200,
+    description: 'User Signup',
+    type: ResponseDto,
+  })
+  @ApiResponse({ status: 400, description: 'Bad request' })
+  @ApiOperation({ summary: 'Register user' })
+  signup(@Body() dto: UserCreateDto): Promise<ResponseDto> {
     return this.authService.signup(dto);
   }
 
   @Post('signin')
-  @ApiCreatedResponse({ description: 'User Login' })
-  @ApiUnauthorizedResponse({ description: 'Invalid credential' })
-  @ApiBody({ type: UserCreateDto })
-  signin(@Body() dto: UserCreateDto) {
+  @ApiResponse({
+    status: 200,
+    description: 'The found record',
+    type: ResponseDto,
+  })
+  @ApiOperation({ summary: 'Changes the users password' })
+  @ApiNotFoundResponse({
+    status: 403,
+    description: 'forbidden',
+  })
+  signin(@Body() dto: UserCreateDto): Promise<ResponseDto> {
     return this.authService.signin(dto);
   }
 }
