@@ -5,12 +5,12 @@ import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  app.setGlobalPrefix('api');
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
     }),
   );
+  app.setGlobalPrefix('api');
   const options = new DocumentBuilder()
     .setTitle('Nest Api')
     .setDescription('Nest api with signup, signin, CRUD ')
@@ -23,7 +23,7 @@ async function bootstrap() {
     .build();
   const document = SwaggerModule.createDocument(app, options);
   SwaggerModule.setup('api', app, document);
-  app.listen(5000);
+  app.listen(3000);
 }
 
 bootstrap();
